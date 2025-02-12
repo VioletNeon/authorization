@@ -1,6 +1,5 @@
 package violet.neon.authorization.controller;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import violet.neon.authorization.model.User;
 import violet.neon.authorization.service.UserService;
@@ -17,8 +16,10 @@ public class UsersController {
     }
 
     @GetMapping
-    public ResponseEntity<Collection<User>> getAllUsers() {
-        return ResponseEntity.ok(userService.getAllUsers());
+    public Collection<User> getAllUsers() {
+        System.out.println("GET " + "users/");
+
+        return userService.getAllUsers();
     }
 
     @GetMapping("{id}")

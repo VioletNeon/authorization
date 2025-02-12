@@ -1,11 +1,13 @@
 package violet.neon.authorization.service;
 
 import org.junit.jupiter.api.Test;
+import violet.neon.authorization.exception.UserNotFoundException;
 import violet.neon.authorization.model.User;
 
 import java.util.Collection;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 class UserServiceImplTest {
     private final UserService out = new UserServiceImpl();
@@ -13,11 +15,9 @@ class UserServiceImplTest {
     private final User mockUser2 = new User();
 
     {
-        mockUser1.setId(1);
         mockUser1.setFullName("Ivan Ivanovich Ivanov");
         mockUser1.setDepartment(1);
 
-        mockUser1.setId(2);
         mockUser2.setFullName("Petr Petrovich Petrov");
         mockUser2.setDepartment(2);
     }
@@ -26,6 +26,7 @@ class UserServiceImplTest {
     void shouldAddUser_ThenReturnThatUser() {
         User result = out.addUser(mockUser1);
         Collection<User> allUsers = out.getAllUsers();
+        mockUser1.setId(result.getId());
 
         assertThat(result).isEqualTo(mockUser1);
         assertThat(allUsers).contains(mockUser1);
@@ -36,9 +37,15 @@ class UserServiceImplTest {
     void shouldFindUserById_ThenReturnThatUser() {
         User expected = out.addUser(mockUser1);
         User result = out.findUser(expected.getId());
+        mockUser1.setId(expected.getId());
 
         assertThat(result).isEqualTo(mockUser1);
         assertThat(result).isEqualTo(expected);
+    }
+
+    @Test
+    void shouldFindUserById_WhenUserNotExists_ThenThrowUserNotFoundException() {
+        assertThatExceptionOfType(UserNotFoundException.class).isThrownBy(() -> out.findUser(mockUser1.getId()));
     }
 
     @Test
@@ -52,15 +59,14 @@ class UserServiceImplTest {
     }
 
     @Test
-    void shouldUpdateUser_WhenUserNotExists_ThenReturnNull() {
-        User result = out.updateUser(mockUser1);
-
-        assertThat(result).isNull();
+    void shouldUpdateUser_WhenUserNotExists_ThenThrowUserNotFoundException() {
+        assertThatExceptionOfType(UserNotFoundException.class).isThrownBy(() -> out.updateUser(mockUser1));
     }
 
     @Test
     void shouldDeleteUser_ThenReturnThatUser() {
         User expected = out.addUser(mockUser1);
+        mockUser1.setId(expected.getId());
         User result = out.deleteUser(expected.getId());
         Collection<User> allUsers = out.getAllUsers();
 
@@ -70,9 +76,16 @@ class UserServiceImplTest {
     }
 
     @Test
+    void shouldDeleteUser_WhenUserNotExists_ThenThrowUserNotFoundException() {
+        assertThatExceptionOfType(UserNotFoundException.class).isThrownBy(() -> out.deleteUser(mockUser1.getId()));
+    }
+
+    @Test
     void shouldReturnAllUsers_ThenReturnTheseAllUsers() {
         User result1 = out.addUser(mockUser1);
+        mockUser1.setId(result1.getId());
         User result2 = out.addUser(mockUser2);
+        mockUser2.setId(result2.getId());
         Collection<User> allUsers = out.getAllUsers();
 
         assertThat(result1).isEqualTo(mockUser1);
