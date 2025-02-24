@@ -30,7 +30,7 @@ public class UsersController {
     }
 
     @PostMapping
-    public User addUser(@RequestBody User user) {
+    public String addUser(@RequestBody User user) {
         System.out.println("POST " + "users/");
 
         return userService.addUser(user);
@@ -44,9 +44,9 @@ public class UsersController {
     }
 
     @DeleteMapping("{id}")
-    public User deleteUser(@PathVariable String id) {
+    public void deleteUser(@PathVariable String id) {
         System.out.println("DELETE " + "users/" + id);
 
-        return userService.deleteUser(id);
+        userService.deleteUser(id);
     }
 }

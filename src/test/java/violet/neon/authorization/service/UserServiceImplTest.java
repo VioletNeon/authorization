@@ -1,16 +1,25 @@
 package violet.neon.authorization.service;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import violet.neon.authorization.exception.UserNotFoundException;
 import violet.neon.authorization.model.User;
+import violet.neon.authorization.repository.UserRepository;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class UserServiceImplTest {
-    private final UserService out = new UserServiceImpl();
     private final User mockUser1 = new User();
     private final User mockUser2 = new User();
 
@@ -22,74 +31,102 @@ class UserServiceImplTest {
         mockUser2.setDepartment(2);
     }
 
+    @Mock
+    private UserRepository userRepository;
+
+    @InjectMocks
+    private UserServiceImpl userService;
+
     @Test
     void shouldAddUser_ThenReturnThatUser() {
-        User result = out.addUser(mockUser1);
-        Collection<User> allUsers = out.getAllUsers();
-        mockUser1.setId(result.getId());
+        mockUser1.setId("1");
+        when(userRepository.save(any(User.class))).thenReturn(mockUser1);
 
-        assertThat(result).isEqualTo(mockUser1);
-        assertThat(allUsers).contains(mockUser1);
-        assertThat(allUsers).hasSize(1);
+        String result = userService.addUser(mockUser1);
+
+        assertThat(result).isEqualTo(mockUser1.getId());
+
+        verify(userRepository, times(1)).save(eq(mockUser1));
     }
 
     @Test
     void shouldFindUserById_ThenReturnThatUser() {
-        User expected = out.addUser(mockUser1);
-        User result = out.findUser(expected.getId());
-        mockUser1.setId(expected.getId());
+        mockUser1.setId("2");
+        when(userRepository.findById(mockUser1.getId())).thenReturn(Optional.of(mockUser1));
+
+        User result = userService.findUser(mockUser1.getId());
 
         assertThat(result).isEqualTo(mockUser1);
-        assertThat(result).isEqualTo(expected);
+
+        verify(userRepository, times(1)).findById(eq(mockUser1.getId()));
     }
 
     @Test
     void shouldFindUserById_WhenUserNotExists_ThenThrowUserNotFoundException() {
-        assertThatExceptionOfType(UserNotFoundException.class).isThrownBy(() -> out.findUser(mockUser1.getId()));
+        mockUser1.setId("3");
+        when(userRepository.findById(mockUser1.getId())).thenReturn(Optional.empty());
+
+        assertThatExceptionOfType(UserNotFoundException.class).isThrownBy(() -> userService.findUser(mockUser1.getId()));
+
+        verify(userRepository, times(1)).findById(eq(mockUser1.getId()));
     }
 
     @Test
     void shouldUpdateUser_WhenUserExists_ThenReturnThatUser() {
-        User mockUser3 = out.addUser(mockUser1);
-        mockUser3.setDepartment(3);
-        mockUser3.setFullName("Sidr Sidorovich Sidorov");
-        User result = out.updateUser(mockUser3);
+        mockUser1.setId("4");
+        when(userRepository.save(any(User.class))).thenReturn(mockUser1);
+        when(userRepository.findById(mockUser1.getId())).thenReturn(Optional.of(mockUser1));
 
-        assertThat(result).isEqualTo(mockUser3);
+        User result = userService.updateUser(mockUser1);
+
+        assertThat(result).isEqualTo(mockUser1);
+
+        verify(userRepository, times(1)).findById(eq(mockUser1.getId()));
+        verify(userRepository, times(1)).save(eq(mockUser1));
     }
 
     @Test
     void shouldUpdateUser_WhenUserNotExists_ThenThrowUserNotFoundException() {
-        assertThatExceptionOfType(UserNotFoundException.class).isThrownBy(() -> out.updateUser(mockUser1));
+        mockUser1.setId("5");
+        when(userRepository.findById(mockUser1.getId())).thenReturn(Optional.empty());
+
+        assertThatExceptionOfType(UserNotFoundException.class).isThrownBy(() -> userService.updateUser(mockUser1));
+
+        verify(userRepository, times(1)).findById(eq(mockUser1.getId()));
     }
 
     @Test
     void shouldDeleteUser_ThenReturnThatUser() {
-        User expected = out.addUser(mockUser1);
-        mockUser1.setId(expected.getId());
-        User result = out.deleteUser(expected.getId());
-        Collection<User> allUsers = out.getAllUsers();
+        mockUser1.setId("6");
+        when(userRepository.findById(mockUser1.getId())).thenReturn(Optional.of(mockUser1));
 
-        assertThat(result).isEqualTo(mockUser1);
-        assertThat(result).isEqualTo(expected);
-        assertThat(allUsers).hasSize(0);
+        userService.deleteUser(mockUser1.getId());
+
+        verify(userRepository, times(1)).findById(eq(mockUser1.getId()));
+        verify(userRepository, times(1)).deleteById(eq(mockUser1.getId()));
     }
 
     @Test
     void shouldDeleteUser_WhenUserNotExists_ThenThrowUserNotFoundException() {
-        assertThatExceptionOfType(UserNotFoundException.class).isThrownBy(() -> out.deleteUser(mockUser1.getId()));
+        mockUser1.setId("7");
+
+        when(userRepository.findById(mockUser1.getId())).thenReturn(Optional.empty());
+
+        assertThatExceptionOfType(UserNotFoundException.class).isThrownBy(() -> userService.deleteUser(mockUser1.getId()));
+
+        verify(userRepository, times(1)).findById(eq(mockUser1.getId()));
     }
 
     @Test
     void shouldReturnAllUsers_ThenReturnTheseAllUsers() {
-        User result1 = out.addUser(mockUser1);
-        mockUser1.setId(result1.getId());
-        User result2 = out.addUser(mockUser2);
-        mockUser2.setId(result2.getId());
-        Collection<User> allUsers = out.getAllUsers();
+        mockUser1.setId("8");
+        mockUser2.setId("9");
+        List<User> mockStudentList = List.of(mockUser1, mockUser2);
 
-        assertThat(result1).isEqualTo(mockUser1);
-        assertThat(result2).isEqualTo(mockUser2);
-        assertThat(allUsers).hasSize(2);
+        when(userRepository.findAll()).thenReturn(mockStudentList);
+
+        Collection<User> result = userService.getAllUsers();
+
+        assertThat(result).isEqualTo(mockStudentList);
     }
 }
