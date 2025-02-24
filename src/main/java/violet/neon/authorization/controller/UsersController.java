@@ -1,5 +1,6 @@
 package violet.neon.authorization.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import violet.neon.authorization.model.User;
 import violet.neon.authorization.service.UserService;
@@ -30,7 +31,7 @@ public class UsersController {
     }
 
     @PostMapping
-    public User addUser(@RequestBody User user) {
+    public String addUser(@RequestBody User user) {
         System.out.println("POST " + "users/");
 
         return userService.addUser(user);
@@ -44,9 +45,9 @@ public class UsersController {
     }
 
     @DeleteMapping("{id}")
-    public User deleteUser(@PathVariable String id) {
+    public void deleteUser(@PathVariable String id) {
         System.out.println("DELETE " + "users/" + id);
 
-        return userService.deleteUser(id);
+        userService.deleteUser(id);
     }
 }

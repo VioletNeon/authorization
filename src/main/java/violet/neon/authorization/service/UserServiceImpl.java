@@ -1,63 +1,52 @@
 package violet.neon.authorization.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import violet.neon.authorization.exception.UserNotFoundException;
 import violet.neon.authorization.model.User;
+import violet.neon.authorization.repository.UserRepository;
+
+import java.util.UUID;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 @Service
 public class UserServiceImpl implements UserService {
-    private final Map<String, User> users;
+    private final UserRepository userRepository;
 
-    public UserServiceImpl() {
-        this.users = new HashMap<>();
+    public UserServiceImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     @Override
-    public User addUser(User user) {
-        user.setId(String.valueOf(UUID.randomUUID()));
-        users.put(user.getId(), user);
+    public String addUser(User user) {
+        // user.setId(String.valueOf(UUID.randomUUID()));
+        userRepository.save(user);
 
-        return user;
+        return user.getId();
     }
 
     @Override
     public User findUser(String id) {
-        User user = users.get(id);
-
-        if (user == null) {
-            throw new UserNotFoundException(id);
-        }
-
-        return user;
+        return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
     }
 
     @Override
     public User updateUser(User user) {
-        if (!users.containsKey(user.getId())) {
-            throw new UserNotFoundException(user.getId());
-        }
+        this.findUser(user.getId());
 
-        this.users.put(user.getId(), user);
-
-        return user;
+        return userRepository.save(user);
     }
 
     @Override
-    public User deleteUser(String id) {
-        if (!users.containsKey(id)) {
-            throw new UserNotFoundException(id);
-        }
+    public void deleteUser(String id) {
+        this.findUser(id);
 
-        return users.remove(id);
+        userRepository.deleteById(id);
     }
 
     @Override
     public Collection<User> getAllUsers() {
-        return users.values();
+        return userRepository.findAll();
     }
 }
