@@ -1,12 +1,9 @@
 package violet.neon.authorization.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import violet.neon.authorization.exception.UserNotFoundException;
 import violet.neon.authorization.model.User;
 import violet.neon.authorization.repository.UserRepository;
-
-import java.util.UUID;
 
 import java.util.Collection;
 
@@ -20,7 +17,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String addUser(User user) {
-        // user.setId(String.valueOf(UUID.randomUUID()));
         userRepository.save(user);
 
         return user.getId();
