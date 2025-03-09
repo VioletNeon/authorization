@@ -1,6 +1,8 @@
 spring:
   application:
     name: authorization
+  profiles:
+    active: jdbc
   datasource:
     url: jdbc:postgresql://localhost:5432/auth
     username: authorization
@@ -12,5 +14,3 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-repository:
-  type: jdbc
