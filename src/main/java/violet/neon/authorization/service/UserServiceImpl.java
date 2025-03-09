@@ -1,5 +1,6 @@
 package violet.neon.authorization.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import violet.neon.authorization.exception.UserNotFoundException;
 import violet.neon.authorization.model.User;
@@ -11,6 +12,7 @@ import java.util.Collection;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
+    @Autowired
     public UserServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
     }

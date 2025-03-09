@@ -1,7 +1,16 @@
 package violet.neon.authorization.repository;
 
-import org.springframework.data.repository.ListCrudRepository;
 import violet.neon.authorization.model.User;
 
-public interface UserRepository extends ListCrudRepository<User, String> {
+import java.util.Collection;
+import java.util.Optional;
+
+public interface UserRepository {
+    Collection<User> findAll();
+
+    User save(User user);
+
+    Optional<User> findById(String id);
+
+    void deleteById(String id);
 }

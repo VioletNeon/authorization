@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: authorization
+  datasource:
+    url: jdbc:postgresql://localhost:5432/auth
+    username: authorization
+    password: auth123
+    schema: schema.sql
+  sql:
+    init:
+      mode: always
+  jpa:
+    hibernate:
+      ddl-auto: update
+repository:
+  type: jdbc
