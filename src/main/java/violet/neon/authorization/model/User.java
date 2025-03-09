@@ -7,7 +7,7 @@ import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
 @Data
-@Entity
+@Entity(name = "users")
 @Table(name = "users")
 public class User {
     @Id
